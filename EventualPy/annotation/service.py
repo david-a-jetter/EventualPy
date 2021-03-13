@@ -9,8 +9,8 @@ from typing import Dict, List, Callable, Awaitable
 
 from rx.core.typing import Disposable
 
-from EventualPy.annotation.models import Annotation
-from EventualPy.data_entry.models import DataEntryField
+from .models import Annotation
+from ..data_entry.models import DataEntryField
 
 
 class AbstractAnnotationService(ABC):
@@ -38,15 +38,13 @@ class InMemoryAnnotationService(AbstractAnnotationService):
 
         self._ack_lock = threading.Lock()
         self._annotate_lock = threading.Lock()
-        self._pub_lock = threading.Lock()
         self._ack_increment = 0
         self._annotate_increment = 0
 
         self._annotations: Dict[int, List[Annotation]] = {}
-        self._publications: List[Task] = []
         self._schedule = self._schedule_republish()
 
-    def acknowledge(self, field: DataEntryField, annotation: Annotation) -> None:
+    async def acknowledge(self, field_id: int, annotation: Annotation) -> None:
 
         will_succeed = True
         with self._ack_lock:
@@ -54,7 +52,7 @@ class InMemoryAnnotationService(AbstractAnnotationService):
             will_succeed = self._ack_increment % self._fail_ack_every != 0
 
         if will_succeed:
-            ackables: List[Annotation] = self._annotations.get(field.id, [])
+            ackables: List[Annotation] = self._annotations.get(field_id, [])
 
             for ackable in ackables:
                 if ackable.id == annotation.id:
@@ -90,11 +88,7 @@ class InMemoryAnnotationService(AbstractAnnotationService):
                 )
                 field_annotations.append(annotation)
 
-        with self._pub_lock:
-            print(f"pub {field.id}")
-            self._publications.append(
-                asyncio.create_task((self._publish_annotation(field.id, annotation)))
-            )
+            asyncio.create_task((self._publish_annotation(field.id, annotation)))
 
     def _schedule_republish(self) -> Disposable:
         sched = rx.interval(self._republish_interval).subscribe(
@@ -104,22 +98,9 @@ class InMemoryAnnotationService(AbstractAnnotationService):
         return sched
 
     def _republish_annotations(self, _) -> None:
-        # Clean up pubs that are done
-        with self._pub_lock:
-            running_pubs = []
-            for pub in self._publications:
-                if pub.done() is False:
-                    running_pubs.append(pub)
-            self._publications = running_pubs
-
-            loop = asyncio.new_event_loop()
-
+        loop = asyncio.new_event_loop()
+        with self._annotate_lock:
             for field_id, field_annotations in self._annotations.items():
                 for annotation in field_annotations:
                     if annotation.acknowledged is False:
-                        print(f"repub {field_id}")
-                        self._publications.append(
-                            loop.create_task(
-                                (self._publish_annotation(field_id, annotation))
-                            )
-                        )
+                        loop.run_until_complete((self._publish_annotation(field_id, annotation)))
