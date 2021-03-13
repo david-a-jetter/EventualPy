@@ -119,5 +119,7 @@ class InMemoryAnnotationService(AbstractAnnotationService):
                     if annotation.acknowledged is False:
                         print(f"repub {field_id}")
                         self._publications.append(
-                            loop.create_task((self._publish_annotation(field_id, annotation)))
+                            loop.create_task(
+                                (self._publish_annotation(field_id, annotation))
+                            )
                         )
