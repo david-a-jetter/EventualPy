@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "eventualpy"
+version = "0.1.0"
+description = "A python exercise in eventual consistency"
+authors = ["David Jetter <davidajetter@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pydantic = "^1.8.1"
+asyncio = "^3.4.3"
+Rx = "^3.1.1"
+
+[tool.poetry.dev-dependencies]
+black = "^20.8b1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
