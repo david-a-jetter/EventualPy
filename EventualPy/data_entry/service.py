@@ -6,6 +6,7 @@ from typing import Callable, Dict, Awaitable, Iterable, List
 import asyncio
 import rx
 from rx.core.typing import Disposable
+from rx.operators import take_while
 
 from EventualPy.annotation.models import Annotation
 from EventualPy.data_entry.models import DataEntryField
@@ -88,21 +89,21 @@ class InMemoryDataEntryService(AbstractDataEntryService):
                         await self._acknowledge(field.id, annotation)
 
     def _schedule_field_creation(self) -> Disposable:
-        sched = rx.interval(self._create_interval).subscribe(
-            on_next=self._generate_field
+        interval = rx.interval(self._create_interval)
+        composed = interval.pipe(
+            take_while(lambda _: len(self._fields) < self._field_count)
         )
-        return sched
+        subscription = composed.subscribe(on_next=self._generate_field)
+        return subscription
 
     def _generate_field(self, counter) -> None:
-        # TODO: Find a way to cancel the schedule instead of this IF statement
-        if len(self._fields) < self._field_count:
-            next_id = counter + 1
-            field = DataEntryField(id=next_id, annotations=[])
-            self._fields[next_id] = field
+        next_id = counter + 1
+        field = DataEntryField(id=next_id, annotations=[])
+        self._fields[next_id] = field
 
-            loop = asyncio.new_event_loop()
-            if self._publish is not None:
-                loop.run_until_complete(self._publish(field))
+        loop = asyncio.new_event_loop()
+        if self._publish is not None:
+            loop.run_until_complete(self._publish(field))
 
     def _start_republishing(self) -> Disposable:
         sched = rx.interval(self._repub_interval).subscribe(
