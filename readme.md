@@ -24,7 +24,7 @@ The following flows are implemented to achieve that goal:
 
 # Exercise
 
-The [demo.py](demo.py) orchestrates a distributed service architecture within a single process. 
+The [demo.py](EventualPy/demo.py) orchestrates a distributed service architecture within a single process. 
 The following variables are used to adjust the time required to achieve eventual consistency between the two services.
 
 * The number of fields to create, along with the interval for creating them
@@ -44,7 +44,7 @@ The following variables are used to adjust the time required to achieve eventual
 ## Running the demo
 1. `poetry install`
 1. `poetry run python` (this ensures the poetry-managed venv is used)
-1. `from demo import main`
+1. `from EventualPy.demo import main`
 1. `main()`
 
 If you do not modify any of the exercise parameters, 
