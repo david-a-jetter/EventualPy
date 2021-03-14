@@ -11,12 +11,12 @@ The domain orientation is a business environment that contains two primary actor
 
 The goal is to ensure that all created fields are eventually annotated, with mathematical confidence. 
 The following flows are implemented to achieve that goal:
-* Event Based
+* Event Based (Just-in-Time)
   * Publishing new fields for annotation
   * Publishing new annotations for created fields
   * Acknowledging annotations successfully saved in the Data Entry Service
     
-* State-based retries
+* State Based (Batch retry)
   * Republishing unannotated fields for annotation
   * Republishing unacknowledged annotations for created fields
     
@@ -59,3 +59,8 @@ until consistency is reached.
   * Provides simple data modeling (and a lot more!) for Python 3.6+
 * rxpython: https://rxpy.readthedocs.io/en/latest/
   * Used to schedule republication routines and state evaluation
+
+# Future Enhancements
+
+1. Allow mutation of `DataEntryField` context, requiring re-annotation
+1. Support for multiple annotations per `DataEntryField`
