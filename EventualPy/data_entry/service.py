@@ -31,8 +31,14 @@ class AbstractDataEntryService(ABC):
     def unannotated_fields(self) -> Iterable[DataEntryField]:
         raise NotImplementedError()
 
+    @property
+    @abstractmethod
+    def field_count(self) -> int:
+        raise NotImplementedError()
+
 
 class InMemoryDataEntryService(AbstractDataEntryService):
+
     def __init__(
         self,
         field_count: int,
@@ -56,10 +62,14 @@ class InMemoryDataEntryService(AbstractDataEntryService):
         self._repub_schedule = None
 
     @property
+    def field_count(self) -> int:
+        return len(self._fields)
+
+    @property
     def unannotated_fields(self) -> List[DataEntryField]:
         unannotated_fields = []
         for field_id, field in self._fields.items():
-            if len(field.annotations) == 0:
+            if field.annotation is None:
                 unannotated_fields.append(field)
 
         return unannotated_fields
@@ -83,7 +93,7 @@ class InMemoryDataEntryService(AbstractDataEntryService):
             if will_succeed:
                 field = self._fields.get(field_id)
                 if field:
-                    field.annotations.append(annotation)
+                    field.annotation = annotation
 
                     if self._acknowledge is not None:
                         await self._acknowledge(field.id, annotation)

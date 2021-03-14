@@ -22,14 +22,24 @@ class AbstractAnnotationService(ABC):
     async def acknowledge(self, field: DataEntryField, annotation: Annotation) -> Task:
         raise NotImplementedError()
 
+    @property
+    @abstractmethod
+    def acknowledged_annotations(self) -> Dict[int, Annotation]:
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def unacknowledged_annotations(self) -> Dict[int, Annotation]:
+        raise NotImplementedError()
+
 
 class InMemoryAnnotationService(AbstractAnnotationService):
     def __init__(
         self,
         publish_annotation: Callable[[int, Annotation], Awaitable[None]],
         republish_interval: timedelta,
-        fail_ack_every: int,
         fail_annotate_every: int,
+        fail_ack_every: int,
     ):
         self._publish_annotation = publish_annotation
         self._republish_interval = republish_interval
@@ -41,8 +51,24 @@ class InMemoryAnnotationService(AbstractAnnotationService):
         self._ack_increment = 0
         self._annotate_increment = 0
 
-        self._annotations: Dict[int, List[Annotation]] = {}
+        self._annotations: Dict[int, Annotation] = {}
         self._schedule = self._schedule_republish()
+
+    @property
+    def acknowledged_annotations(self) -> Dict[int, Annotation]:
+        acked = dict(
+            filter(lambda kvp: kvp[1].acknowledged is True, self._annotations.items())
+        )
+
+        return acked
+
+    @property
+    def unacknowledged_annotations(self) -> Dict[int, Annotation]:
+        acked = dict(
+            filter(lambda kvp: kvp[1].acknowledged is False, self._annotations.items())
+        )
+
+        return acked
 
     async def acknowledge(self, field_id: int, annotation: Annotation) -> None:
 
@@ -52,12 +78,10 @@ class InMemoryAnnotationService(AbstractAnnotationService):
             will_succeed = self._ack_increment % self._fail_ack_every != 0
 
         if will_succeed:
-            ackables: List[Annotation] = self._annotations.get(field_id, [])
+            field_annotation: Annotation = self._annotations.get(field_id)
 
-            for ackable in ackables:
-                if ackable.id == annotation.id:
-                    ackable.acknowledged = True
-                    break
+            if field_annotation is not None and field_annotation.id == annotation.id:
+                field_annotation.acknowledged = True
 
     async def annotate(self, field: DataEntryField) -> None:
 
@@ -70,25 +94,16 @@ class InMemoryAnnotationService(AbstractAnnotationService):
             will_succeed = self._annotate_increment % self._fail_ack_every != 0
 
         if will_succeed:
-            field_annotations: List[Annotation] = self._annotations.get(field.id)
+            field_annotation: Annotation = self._annotations.get(field.id)
 
             # Add the annotations list to the dictionary if we need to
-            if field_annotations is None:
-                field_annotations = []
-                self._annotations[field.id] = field_annotations
-
-            annotation = None
-            # If we already have annotations for this field, we assume the last one is the most desirable
-            # TODO: Support multiple annotations / acks per field ID + context
-            if len(field_annotations) > 0:
-                annotation = field_annotations[-1]
-            else:
-                annotation = Annotation(
+            if field_annotation is None:
+                field_annotation = Annotation(
                     id=annotation_id, data=object(), acknowledged=False
                 )
-                field_annotations.append(annotation)
+                self._annotations[field.id] = field_annotation
 
-            asyncio.create_task((self._publish_annotation(field.id, annotation)))
+            asyncio.create_task((self._publish_annotation(field.id, field_annotation)))
 
     def _schedule_republish(self) -> Disposable:
         sched = rx.interval(self._republish_interval).subscribe(
@@ -100,9 +115,8 @@ class InMemoryAnnotationService(AbstractAnnotationService):
     def _republish_annotations(self, _) -> None:
         loop = asyncio.new_event_loop()
         with self._annotate_lock:
-            for field_id, field_annotations in self._annotations.items():
-                for annotation in field_annotations:
-                    if annotation.acknowledged is False:
-                        loop.run_until_complete(
-                            (self._publish_annotation(field_id, annotation))
-                        )
+            for field_id, field_annotation in self._annotations.items():
+                if field_annotation.acknowledged is False:
+                    loop.run_until_complete(
+                        (self._publish_annotation(field_id, field_annotation))
+                    )
