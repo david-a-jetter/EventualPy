@@ -103,4 +103,6 @@ class InMemoryAnnotationService(AbstractAnnotationService):
             for field_id, field_annotations in self._annotations.items():
                 for annotation in field_annotations:
                     if annotation.acknowledged is False:
-                        loop.run_until_complete((self._publish_annotation(field_id, annotation)))
+                        loop.run_until_complete(
+                            (self._publish_annotation(field_id, annotation))
+                        )

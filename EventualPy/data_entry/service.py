@@ -85,7 +85,7 @@ class InMemoryDataEntryService(AbstractDataEntryService):
                     field.annotations.append(annotation)
 
                     if self._acknowledge is not None:
-                        asyncio.create_task(self._acknowledge(field.id, annotation))
+                        await self._acknowledge(field.id, annotation)
 
     def _schedule_field_creation(self) -> Disposable:
         sched = rx.interval(self._create_interval).subscribe(
