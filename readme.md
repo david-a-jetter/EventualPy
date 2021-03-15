@@ -24,11 +24,11 @@ The following flows are implemented to achieve that goal:
 
 ## Happy Path
 
-![Happy Path Flow](./doc/happy_path.svg "Happy Path Flow")
+![Happy Path Flow](./doc/images/happy_path.svg "Happy Path Flow")
 
 ## Realistic Path
 
-![Realistic Path Flow](./doc/realistic_path.svg "Realistic Path Flow")
+![Realistic Path Flow](./doc/images/realistic_path.svg "Realistic Path Flow")
 # Exercise
 
 The [demo.py](EventualPy/demo.py) orchestrates a distributed service architecture within a single process. 
