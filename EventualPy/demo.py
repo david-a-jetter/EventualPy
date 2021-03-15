@@ -54,7 +54,7 @@ async def demo():
         unacked_annotion_count = len(annotation_service.unacknowledged_annotations)
         unannotated_field_count = len(data_entry_service.unannotated_fields)
 
-        print(f"Interation: {counter + 1}")
+        print(f"Iteration: {counter + 1}")
         print(f"Field Count: {created_field_count}")
         print(f"Acked Annotation Count: {acked_annotion_count}")
         print(f"Uncked Annotation Count: {unacked_annotion_count}")
@@ -63,7 +63,7 @@ async def demo():
 
         if consistent(None):
             print("---------------")
-            print("Eventually has arrived")
+            print("Eventually has arrived :)")
             print("---------------")
 
     sched = rx.interval(timedelta(seconds=1))
