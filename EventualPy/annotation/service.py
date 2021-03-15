@@ -56,17 +56,19 @@ class InMemoryAnnotationService(AbstractAnnotationService):
 
     @property
     def acknowledged_annotations(self) -> Dict[int, Annotation]:
-        acked = dict(
-            filter(lambda kvp: kvp[1].acknowledged is True, self._annotations.items())
-        )
+        with self._annotate_lock:
+            acked = dict(
+                filter(lambda kvp: kvp[1].acknowledged is True, self._annotations.items())
+            )
 
         return acked
 
     @property
     def unacknowledged_annotations(self) -> Dict[int, Annotation]:
-        acked = dict(
-            filter(lambda kvp: kvp[1].acknowledged is False, self._annotations.items())
-        )
+        with self._annotate_lock:
+            acked = dict(
+                filter(lambda kvp: kvp[1].acknowledged is False, self._annotations.items())
+            )
 
         return acked
 

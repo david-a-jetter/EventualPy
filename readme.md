@@ -72,3 +72,4 @@ until consistency is reached.
 1. Object versioning of `DataEntryField` instances, to require re-annotation
 1. Support for multiple annotations per `DataEntryField`
 1. Consider storage optimizations, eg: split acked and unacked annotations
+1. Extract configurable inputs to a config file

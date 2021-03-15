@@ -62,14 +62,16 @@ class InMemoryDataEntryService(AbstractDataEntryService):
 
     @property
     def field_count(self) -> int:
-        return len(self._fields)
+        with self._annotate_lock:
+            return len(self._fields)
 
     @property
     def unannotated_fields(self) -> List[DataEntryField]:
         unannotated_fields = []
-        for field_id, field in self._fields.items():
-            if field.annotation is None:
-                unannotated_fields.append(field)
+        with self._annotate_lock:
+            for field_id, field in self._fields.items():
+                if field.annotation is None:
+                    unannotated_fields.append(field)
 
         return unannotated_fields
 
