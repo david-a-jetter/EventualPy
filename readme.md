@@ -69,7 +69,8 @@ until consistency is reached.
 
 # Future Enhancements
 
+1. Extract configurable inputs to a config file
 1. Object versioning of `DataEntryField` instances, to require re-annotation
+1. Support for replacing an existing annotation initiated by the Annotation service
 1. Support for multiple annotations per `DataEntryField`
 1. Consider storage optimizations, eg: split acked and unacked annotations
-1. Extract configurable inputs to a config file
