@@ -69,6 +69,7 @@ until consistency is reached.
 
 # Future Enhancements
 
+1. Tests! Not fun in a demo, but fun in real life
 1. Extract configurable inputs to a config file
 1. Object versioning of `DataEntryField` instances, to require re-annotation
 1. Support for replacing an existing annotation initiated by the Annotation service
