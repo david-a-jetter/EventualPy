@@ -57,8 +57,8 @@ async def demo():
         print(f"Iteration: {counter + 1}")
         print(f"Field Count: {created_field_count}")
         print(f"Acked Annotation Count: {acked_annotion_count}")
-        print(f"Uncked Annotation Count: {unacked_annotion_count}")
         print(f"Unannotated Field Count: {unannotated_field_count}")
+        print(f"Unacked Annotation Count: {unacked_annotion_count}")
         print("")
 
         if consistent(None):
