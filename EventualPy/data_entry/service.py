@@ -38,7 +38,6 @@ class AbstractDataEntryService(ABC):
 
 
 class InMemoryDataEntryService(AbstractDataEntryService):
-
     def __init__(
         self,
         field_count: int,

@@ -15,16 +15,19 @@ async def demo():
     data_entry_service = InMemoryDataEntryService(
         field_count=max_field_count,
         create_interval=timedelta(milliseconds=1),
-        fail_annotate_every=fail_every)
+        fail_annotate_every=fail_every,
+    )
     annotation_service = InMemoryAnnotationService(
         publish_annotation=data_entry_service.annotate_field,
         republish_interval=one_second,
         fail_annotate_every=fail_every,
-        fail_ack_every=fail_every)
+        fail_ack_every=fail_every,
+    )
     data_entry_service.start_publications(
         publish=annotation_service.annotate,
         acknowledge=annotation_service.acknowledge,
-        interval=one_second)
+        interval=one_second,
+    )
 
     created_field_count = 0
     acked_annotion_count = 0

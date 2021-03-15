@@ -20,8 +20,15 @@ The following flows are implemented to achieve that goal:
   * Republishing unannotated fields for annotation
   * Republishing unacknowledged annotations for created fields
     
-# TODO: ADD FLOWCHART
+# Business Flows
 
+## Happy Path
+
+![Happy Path Flow](./doc/happy_path.svg "Happy Path Flow")
+
+## Realistic Path
+
+![Realistic Path Flow](./doc/realistic_path.svg "Realistic Path Flow")
 # Exercise
 
 The [demo.py](EventualPy/demo.py) orchestrates a distributed service architecture within a single process. 
@@ -62,5 +69,6 @@ until consistency is reached.
 
 # Future Enhancements
 
-1. Allow mutation of `DataEntryField` context, requiring re-annotation
+1. Object versioning of `DataEntryField` instances, to require re-annotation
 1. Support for multiple annotations per `DataEntryField`
+1. Consider storage optimizations, eg: split acked and unacked annotations
