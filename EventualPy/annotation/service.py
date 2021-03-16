@@ -5,7 +5,7 @@ import asyncio
 import rx
 from asyncio import Task
 from datetime import timedelta
-from typing import Dict, List, Callable, Awaitable
+from typing import Dict, Callable, Awaitable
 
 from rx.core.typing import Disposable
 
@@ -79,11 +79,11 @@ class InMemoryAnnotationService(AbstractAnnotationService):
             self._ack_increment += 1
             will_succeed = self._ack_increment % self._fail_ack_every != 0
 
-        if will_succeed:
-            field_annotation: Annotation = self._annotations.get(field_id)
+            if will_succeed:
+                field_annotation: Annotation = self._annotations.get(field_id)
 
-            if field_annotation is not None and field_annotation.id == annotation.id:
-                field_annotation.acknowledged = True
+                if field_annotation is not None and field_annotation.id == annotation.id:
+                    field_annotation.acknowledged = True
 
     async def annotate(self, field: DataEntryField) -> None:
 
@@ -95,17 +95,17 @@ class InMemoryAnnotationService(AbstractAnnotationService):
             self._annotate_increment = annotation_id
             will_succeed = self._annotate_increment % self._fail_ack_every != 0
 
-        if will_succeed:
-            field_annotation: Annotation = self._annotations.get(field.id)
+            if will_succeed:
+                field_annotation: Annotation = self._annotations.get(field.id)
 
-            # Add the annotations list to the dictionary if we need to
-            if field_annotation is None:
-                field_annotation = Annotation(
-                    id=annotation_id, data=object(), acknowledged=False
-                )
-                self._annotations[field.id] = field_annotation
+                # Add the annotations list to the dictionary if we need to
+                if field_annotation is None:
+                    field_annotation = Annotation(
+                        id=annotation_id, data=object(), acknowledged=False
+                    )
+                    self._annotations[field.id] = field_annotation
 
-            asyncio.create_task((self._publish_annotation(field.id, field_annotation)))
+                asyncio.create_task((self._publish_annotation(field.id, field_annotation)))
 
     def _schedule_republish(self) -> Disposable:
         sched = rx.interval(self._republish_interval).subscribe(
