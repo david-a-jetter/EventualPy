@@ -58,7 +58,9 @@ class InMemoryAnnotationService(AbstractAnnotationService):
     def acknowledged_annotations(self) -> Dict[int, Annotation]:
         with self._annotate_lock:
             acked = dict(
-                filter(lambda kvp: kvp[1].acknowledged is True, self._annotations.items())
+                filter(
+                    lambda kvp: kvp[1].acknowledged is True, self._annotations.items()
+                )
             )
 
         return acked
@@ -67,7 +69,9 @@ class InMemoryAnnotationService(AbstractAnnotationService):
     def unacknowledged_annotations(self) -> Dict[int, Annotation]:
         with self._annotate_lock:
             acked = dict(
-                filter(lambda kvp: kvp[1].acknowledged is False, self._annotations.items())
+                filter(
+                    lambda kvp: kvp[1].acknowledged is False, self._annotations.items()
+                )
             )
 
         return acked
@@ -82,7 +86,10 @@ class InMemoryAnnotationService(AbstractAnnotationService):
             if will_succeed:
                 field_annotation: Annotation = self._annotations.get(field_id)
 
-                if field_annotation is not None and field_annotation.id == annotation.id:
+                if (
+                    field_annotation is not None
+                    and field_annotation.id == annotation.id
+                ):
                     field_annotation.acknowledged = True
 
     async def annotate(self, field: DataEntryField) -> None:
@@ -105,7 +112,9 @@ class InMemoryAnnotationService(AbstractAnnotationService):
                     )
                     self._annotations[field.id] = field_annotation
 
-                asyncio.create_task((self._publish_annotation(field.id, field_annotation)))
+                asyncio.create_task(
+                    (self._publish_annotation(field.id, field_annotation))
+                )
 
     def _schedule_republish(self) -> Disposable:
         sched = rx.interval(self._republish_interval).subscribe(

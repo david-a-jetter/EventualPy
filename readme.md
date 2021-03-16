@@ -1,6 +1,8 @@
 # EventualPy
 A python asyncio exercise in eventual consistency.
 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 Ported from an older C# implementation: [Eventually](https://github.com/david-a-jetter/Eventually)
 
 # Domain
